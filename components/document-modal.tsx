@@ -414,9 +414,11 @@ export function DocumentModal({
   }
 
   const PDF_CSS = `
-  .pdf-optimized { font-family: 'Segoe UI', sans-serif; line-height:1.4; }
-  .pdf-optimized table { border-collapse:collapse; width:100%; font-size:10pt; }
+  .pdf-optimized { font-family: 'Times New Roman', serif; line-height:1.3; }
+  .pdf-optimized table { border-collapse:collapse; width:100%; font-size:11pt; }
   .pdf-optimized th, .pdf-optimized td { border:1px solid #bdc3c7; padding:6pt; }
+  .pdf-optimized h1 { font-family: 'Segoe UI', sans-serif; font-size:11pt; }
+  .pdf-optimized h2 { font-family: 'Segoe UI', sans-serif; font-size:10pt; }
   /* overrides Tailwind */
   .pdf-optimized .text-4xl { font-size:22pt !important; }
 `;
