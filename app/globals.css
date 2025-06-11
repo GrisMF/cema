@@ -1,0 +1,762 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 1rem;
+
+    /* Nuevos colores personalizados */
+    --gradient-blue: 221 83% 53%;
+    --gradient-purple: 262 83% 58%;
+    --gradient-teal: 174 75% 46%;
+    --gradient-pink: 334 85% 55%;
+    --gradient-yellow: 45 93% 58%;
+    --glass-background: 0 0% 100% / 0.7;
+    --glass-border: 0 0% 100% / 0.3;
+    --glass-shine: 0 0% 100% / 0.1;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    /* Nuevos colores personalizados para modo oscuro */
+    --glass-background: 222.2 84% 4.9% / 0.7;
+    --glass-border: 255 255 255 / 0.15;
+    --glass-shine: 255 255 255 / 0.05;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-color: #f8fafc;
+    background-image: radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.25) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 90% 90%, hsla(340, 100%, 76%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 10% 10%, hsla(242, 100%, 70%, 0.1) 0px, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply backdrop-blur-xl bg-opacity-70 shadow-xl border border-opacity-20 relative overflow-hidden;
+    background-color: hsla(var(--glass-background));
+    border-color: hsla(var(--glass-border));
+  }
+
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, hsla(var(--glass-shine)), transparent);
+    transform: skewX(-25deg);
+    transition: all 0.75s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .glass-card:hover::before {
+    left: 125%;
+    transition: all 0.75s ease;
+  }
+
+  .glass-card > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .gradient-text {
+    @apply font-bold text-transparent bg-clip-text;
+    background-image: linear-gradient(to right, hsl(var(--gradient-blue)), hsl(var(--gradient-purple)));
+  }
+
+  .gradient-text-teal {
+    @apply font-bold text-transparent bg-clip-text;
+    background-image: linear-gradient(to right, hsl(var(--gradient-teal)), hsl(var(--gradient-blue)));
+  }
+
+  .gradient-text-pink {
+    @apply font-bold text-transparent bg-clip-text;
+    background-image: linear-gradient(to right, hsl(var(--gradient-pink)), hsl(var(--gradient-purple)));
+  }
+
+  .gradient-bg {
+    background-image: linear-gradient(to right, hsl(var(--gradient-blue)), hsl(var(--gradient-purple)));
+  }
+
+  .gradient-border {
+    position: relative;
+    border-radius: var(--radius);
+    background-clip: padding-box;
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(to right, hsl(var(--gradient-blue)), hsl(var(--gradient-purple)));
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 50%;
+    height: 300%;
+    background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    animation: shimmer 6s infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+/* Neo-brutalism style */
+.neo-brutalism {
+  background-color: white;
+  border: 2px solid black;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  transition: all 0.3s ease;
+}
+
+.neo-brutalism:hover {
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+  transform: translate(2px, 2px);
+}
+
+.neo-brutalism:active {
+  box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+  transform: translate(4px, 4px);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) rotate(30deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(30deg);
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.tab-content-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.tab-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.tab-content-exit {
+  opacity: 1;
+}
+
+.tab-content-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Mejoras para móvil */
+@layer utilities {
+  @media (max-width: 640px) {
+    .mobile-full {
+      @apply w-full;
+    }
+
+    .mobile-stack {
+      @apply flex-col;
+    }
+
+    .mobile-p-2 {
+      @apply p-2;
+    }
+
+    .mobile-text-sm {
+      @apply text-sm;
+    }
+  }
+}
+
+/* Estilos para impresión */
+@media print {
+  /* Ensure the banner background prints correctly */
+  .banner {
+    position: relative !important;
+    height: 150px !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 20px !important;
+    background-image: url("/images/banner-uvas.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Ensure table headers have background color when printed */
+  .bg-blue-700,
+  .bg-purple-700,
+  .bg-green-100,
+  .bg-blue-100,
+  .bg-purple-100,
+  .bg-amber-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Ensure the banner gradient overlay prints */
+  .banner .bg-gradient-to-r {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background: linear-gradient(to right, rgba(30, 58, 138, 0.7), rgba(30, 58, 138, 0.3)) !important;
+  }
+
+  /* Ensure table borders print correctly */
+  table,
+  th,
+  td {
+    border-collapse: collapse !important;
+    border: 1px solid #d1d5db !important;
+  }
+
+  /* Ensure table headers have white text */
+  .bg-blue-700,
+  .bg-purple-700 {
+    color: white !important;
+  }
+
+  /* Ensure page breaks don't occur in the middle of important sections */
+  .pdf-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Ensure tables don't break across pages */
+  .no-break-table {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
+  body {
+    background: white !important;
+    font-family: "Outfit", sans-serif;
+    color: #333;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Ocultar elementos que no deben imprimirse */
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Ocultar elementos de navegación y UI */
+  header,
+  nav,
+  .tabs,
+  .card-header,
+  .card-footer,
+  .TabsList,
+  .TabsTrigger,
+  .DecorativeBackground,
+  .blob,
+  .pattern-grid,
+  .pattern-dots,
+  button {
+    display: none !important;
+  }
+
+  /* Mostrar solo el contenido del PDF */
+  .print-content {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Estilos adicionales para impresión */
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  .print\:rounded-none {
+    border-radius: 0 !important;
+  }
+
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  /* Evitar saltos de página en elementos importantes */
+  table {
+    page-break-inside: avoid !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    page-break-after: avoid !important;
+  }
+
+  img {
+    page-break-inside: avoid !important;
+  }
+
+  /* Asegurar que los colores se impriman correctamente */
+  .bg-blue-600 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: #2563eb !important;
+    color: white !important;
+  }
+
+  .bg-blue-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: #eff6ff !important;
+  }
+
+  .bg-gray-50,
+  .bg-gray-100 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: #f9fafb !important;
+  }
+
+  .text-blue-700,
+  .text-blue-800 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    color: #1d4ed8 !important;
+  }
+
+  .text-red-600 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    color: #dc2626 !important;
+  }
+
+  .border-blue-600 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    border-color: #2563eb !important;
+  }
+
+  .border-red-500 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    border-color: #ef4444 !important;
+  }
+
+  .bg-red-50 {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-color: #fef2f2 !important;
+  }
+
+  /* Mejorar la visualización de tablas */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    font-size: 10pt !important;
+  }
+
+  td,
+  th {
+    border: 1px solid #ddd !important;
+    padding: 4px !important;
+  }
+
+  /* Asegurar que el banner se vea correctamente */
+  .banner {
+    position: relative !important;
+    height: 150px !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 20px !important;
+  }
+
+  .banner .absolute {
+    position: absolute !important;
+  }
+
+  /* Asegurar que el fondo del banner se imprima */
+  .banner [style*="background-image"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background-image: url("/images/banner-uvas.png") !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+
+  /* Asegurar que el degradado del banner se imprima */
+  .banner .bg-gradient-to-r {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    background: linear-gradient(to right, rgba(30, 58, 138, 0.7), rgba(30, 58, 138, 0.3)) !important;
+  }
+
+  /* Asegurar que las imágenes se impriman correctamente */
+  img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    max-height: 100px !important;
+  }
+
+  /* Estilos para el pie de página */
+  footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    border-top: 1px solid #e5e7eb !important;
+    padding-top: 10px !important;
+    font-size: 9pt !important;
+  }
+
+  /* Estilos para los bordes dashed */
+  .border-dashed {
+    border-style: dashed !important;
+  }
+
+  /* Asegurar que no se corte el contenido */
+  .break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  /* Asegurar que las tablas no se corten entre páginas */
+  table {
+    page-break-inside: avoid !important;
+  }
+
+  /* Evitar saltos de página en elementos importantes */
+  h1,
+  h2,
+  h3,
+  h4,
+  .no-break {
+    page-break-after: avoid !important;
+  }
+
+  /* Asegurar que las imágenes no se corten */
+  img {
+    page-break-inside: avoid !important;
+  }
+
+  /* Ajustar el tamaño de la página para PDF */
+  @page {
+    size: A4;
+    margin: 1.5cm;
+  }
+
+  /* Asegurar que cada sección principal comience en una nueva página si es necesario */
+  .pdf-section {
+    page-break-before: auto;
+    page-break-after: auto;
+    page-break-inside: avoid;
+  }
+
+  /* Asegurar que las tablas no se corten */
+  .no-break-table {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Asegurar que cada elemento de tabla no se corte */
+  table thead,
+  table tbody,
+  table tr,
+  table td,
+  table th {
+    page-break-inside: avoid !important;
+  }
+
+  /* Ajustar tamaño de fuente para dispositivos móviles */
+  @media (max-width: 768px) {
+    table {
+      font-size: 8pt !important;
+    }
+
+    td,
+    th {
+      padding: 2px !important;
+    }
+  }
+}
+
+/* Decoraciones */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  z-index: -1;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.blob-1 {
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.5) 0%, rgba(124, 58, 237, 0) 70%);
+  animation: float 8s ease-in-out infinite;
+}
+
+.blob-2 {
+  bottom: -150px;
+  left: -100px;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.5) 0%, rgba(14, 165, 233, 0) 70%);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.blob-3 {
+  top: 40%;
+  right: -150px;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, rgba(236, 72, 153, 0) 70%);
+  animation: float 12s ease-in-out infinite;
+}
+
+.pattern-dots {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+.pattern-grid {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  pointer-events: none;
+}
+
+/* Efectos de hover */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Asegurarse de que los elementos interactivos estén por encima de los decorativos */
+.interactive-element {
+  position: relative;
+  z-index: 10;
+}
+
+/* Asegurarse de que los contenidos dentro de las tarjetas sean interactivos */
+.contents {
+  display: contents;
+}
+
+/* Estilos específicos para tablas en PDF */
+.pdf-container {
+  page-break-before: avoid;
+  page-break-after: avoid;
+}
+
+.no-break-table {
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  margin-bottom: 20px !important;
+}
+
+/* Estilos responsivos para dispositivos móviles */
+@media (max-width: 768px) {
+  .pdf-container {
+    padding: 10px !important;
+  }
+
+  .pdf-container table {
+    font-size: 10px !important;
+  }
+
+  .pdf-container td,
+  .pdf-container th {
+    padding: 4px !important;
+  }
+
+  .pdf-container h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .pdf-container h2 {
+    font-size: 1.25rem !important;
+  }
+
+  .pdf-container h3 {
+    font-size: 1.1rem !important;
+  }
+
+  /* Ajustar el ancho de las tablas para dispositivos móviles */
+  .overflow-x-auto {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-width: 100% !important;
+  }
+}
