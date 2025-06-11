@@ -414,11 +414,23 @@ export function DocumentModal({
   }
 
   const PDF_CSS = `
-  .pdf-optimized { font-family: 'Times New Roman', serif; line-height:1.3; }
-  .pdf-optimized table { border-collapse:collapse; width:100%; font-size:11pt; }
-  .pdf-optimized th, .pdf-optimized td { border:1px solid #bdc3c7; padding:6pt; }
-  .pdf-optimized h1 { font-family: 'Segoe UI', sans-serif; font-size:11pt; }
-  .pdf-optimized h2 { font-family: 'Segoe UI', sans-serif; font-size:10pt; }
+
+  @page { size: A4 portrait; margin: 40pt; }
+  .pdf-optimized { font: 11pt/1.3 "Times New Roman", serif; color:#000; }
+  .pdf-optimized h1,
+  .pdf-optimized h2,
+  .pdf-optimized h3 { font-family:"Segoe UI", sans-serif; margin:12pt 0; color:#00539B; }
+  .pdf-optimized .header { position:relative; height:40pt; }
+  .pdf-optimized .header img { position:absolute; left:40pt; top:15pt; width:60pt; }
+  .pdf-optimized .header .title { position:absolute; right:40pt; top:20pt; font:11pt/1.25 "Segoe UI"; color:#00539B; }
+  .pdf-optimized .hr-header,
+  .pdf-optimized .hr-footer { height:0; border:2.25pt solid #00539B; }
+  .pdf-optimized .footer { position:absolute; left:0; right:0; bottom:40pt; font:8pt "Segoe UI"; text-align:center; color:#00539B; }
+  .pdf-optimized .footer .num { position:absolute; right:40pt; bottom:0; font:8pt "Segoe UI"; color:#7F8C8D; }
+  .pdf-optimized table { width:100%; border-collapse:collapse; font:11pt Times; }
+  .pdf-optimized td,
+  .pdf-optimized th { border:0.5pt solid #bdc3c7; padding:4pt 6pt; }
+
   /* overrides Tailwind */
   .pdf-optimized .text-4xl { font-size:22pt !important; }
 `;
