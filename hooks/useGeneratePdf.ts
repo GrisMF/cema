@@ -44,8 +44,9 @@ export const useGeneratePdf = () => {
 /* helpers actualizados — usan la anchura real de la página en pt */
 const addHeader = (doc: jsPDF, pw: number, title: string) => {
   const marginX = 40;
-  const logoW   = 60;  // ~20 mm
-  const logoH   = 18;  // mantiene proporción
+  // logo de 4 cm de ancho por 1.5 cm de alto
+  const logoW   = 113.4; // 4 cm en pt
+  const logoH   = 42.5;  // 1.5 cm en pt
 
   doc.addImage(CEMA_LOGO, "PNG", marginX, 15, logoW, logoH);
 
@@ -56,14 +57,16 @@ const addHeader = (doc: jsPDF, pw: number, title: string) => {
     .text(title, pw - marginX, 28, { align: "right" });
 
   doc.setDrawColor(0, 83, 155)
-     .setLineWidth(0.4)
+     .setLineWidth(2.25)
      .line(marginX, 40, pw - marginX, 40);
 };
 
 
 const addFooter = (doc: any, page: number, total: number, pw: number, ph: number) => {
   const y = ph - 40;                             // 40 pt desde el borde inferior
-  doc.setDrawColor(0, 83, 155).line(40, y, pw - 40, y);
+  doc.setDrawColor(0, 83, 155)
+     .setLineWidth(2.25)
+     .line(40, y, pw - 40, y);
 
   doc.setFontSize(8)
      .setTextColor(0, 83, 155)
