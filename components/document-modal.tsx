@@ -442,6 +442,14 @@ export function DocumentModal({
   return `${filename}.pdf`;
 }
 
+  function getDocumentTitle(activeTab: string): string {
+    if (activeTab === "serviceContract") return "Contrato de Servicios de Certificación";
+    if (activeTab === "auditAgreement") return "Acuerdo de Auditoría";
+    if (activeTab === "certificationRequest") return "Solicitud de Certificación";
+    if (activeTab === "solicitudForm") return "Formulario Completo";
+    return "Documento";
+  }
+
 // 2️⃣ handleDownload actualizado
 const handleDownload = async () => {
   if (!documentRef.current) return;
@@ -468,7 +476,11 @@ const handleDownload = async () => {
 
   setIsGeneratingPDF(true);
   try {
-    await generatePdf(wrapper, buildFileName(activeTab, datosGenerales));
+    await generatePdf(
+      wrapper,
+      buildFileName(activeTab, datosGenerales),
+      getDocumentTitle(activeTab)
+    );
   } catch (err) {
     console.error(err);
     alert("Ocurrió un error al generar el PDF.");
