@@ -44,9 +44,9 @@ export function AuditAgreementDocument({
     <div
       className="audit-agreement-document"
       style={{
-        fontFamily: "Times New Roman, Times, serif",
-        fontSize: "12pt",
-        lineHeight: 1.5,
+        fontFamily: "Times New Roman, serif",
+        fontSize: "11pt",
+        lineHeight: 1.3,
         width: "100%",
         maxWidth: "210mm",
         margin: "0 auto",

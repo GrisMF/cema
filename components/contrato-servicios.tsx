@@ -64,9 +64,9 @@ export function ContratoServicios({
     <div
       className="contract-document"
       style={{
-        fontFamily: "Arial, sans-serif",
+        fontFamily: "Times New Roman, serif",
         fontSize: "11pt",
-        lineHeight: 1.6,
+        lineHeight: 1.3,
         letterSpacing: "0.2px",
         width: "100%",
         maxWidth: "210mm",

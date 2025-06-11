@@ -31,9 +31,9 @@ export function CertificationRequestDocument({
     <div
       style={{
         width: "100%",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        fontFamily: "Times New Roman, serif",
         fontSize: "11pt",
-        lineHeight: "1.5",
+        lineHeight: "1.3",
         letterSpacing: "0.3px",
         padding: "20px",
         margin: "0",

@@ -414,6 +414,7 @@ export function DocumentModal({
   }
 
   const PDF_CSS = `
+
   @page { size: A4 portrait; margin: 40pt; }
   .pdf-optimized { font: 11pt/1.3 "Times New Roman", serif; color:#000; }
   .pdf-optimized h1,
@@ -429,6 +430,7 @@ export function DocumentModal({
   .pdf-optimized table { width:100%; border-collapse:collapse; font:11pt Times; }
   .pdf-optimized td,
   .pdf-optimized th { border:0.5pt solid #bdc3c7; padding:4pt 6pt; }
+
   /* overrides Tailwind */
   .pdf-optimized .text-4xl { font-size:22pt !important; }
 `;
