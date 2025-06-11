@@ -8,7 +8,7 @@ import { CEMA_LOGO } from "@/app/src/utils/cemaLogo";
  * Se carga únicamente en el cliente para evitar “document is not defined”
  */
 export const useGeneratePdf = () => {
-  return async (root: HTMLElement, fileName: string) => {
+  return async (root: HTMLElement, fileName: string, title: string) => {
     const { jsPDF } = await import("jspdf");     // opcional: import dinámico
 
     const pdf        = new jsPDF({ unit: "pt", format: "a4", orientation: "portrait" });
@@ -32,7 +32,7 @@ export const useGeneratePdf = () => {
         const total = doc.getNumberOfPages();
         for (let p = 1; p <= total; p++) {
           doc.setPage(p);
-          addHeader(doc, p, pageWidth);          // 👈 nuevo
+          addHeader(doc, pageWidth, title);
           addFooter(doc, p, total, pageWidth, pageHeight);
         }
         doc.save(fileName);
@@ -42,12 +42,18 @@ export const useGeneratePdf = () => {
 };
 
 /* helpers actualizados — usan la anchura real de la página en pt */
-const addHeader = (doc: any, pw: number) => {
+const addHeader = (doc: jsPDF, pw: number, title: string) => {
   const marginX = 40;
   const logoW   = 60;  // ~20 mm
   const logoH   = 18;  // mantiene proporción
 
   doc.addImage(CEMA_LOGO, "PNG", marginX, 15, logoW, logoH);
+
+  doc
+    .setFont("Segoe UI", "normal")
+    .setFontSize(11)
+    .setTextColor(0, 83, 155)
+    .text(title, pw - marginX, 28, { align: "right" });
 
   doc.setDrawColor(0, 83, 155)
      .setLineWidth(0.4)
