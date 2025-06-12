@@ -33,8 +33,8 @@ interface Cotizacion {
   }
   datos_generales?: {
     nombreEmpresa: string
-    nombreContacto: string
-    email: string
+    personaContacto: string
+    correo: string
     telefono: string
   }
 }
@@ -299,11 +299,11 @@ export default function AdminCotizacionesPage() {
   }
 
   function getNombreContacto(cotizacion: Cotizacion) {
-    return cotizacion.contacto || cotizacion.datos_generales?.nombreContacto || "Contacto sin nombre"
+    return cotizacion.contacto || cotizacion.datos_generales?.personaContacto || "Contacto sin nombre"
   }
 
   function getEmail(cotizacion: Cotizacion) {
-    return cotizacion.email || cotizacion.datos_generales?.email || "Email no disponible"
+    return cotizacion.email || cotizacion.datos_generales?.correo || "Email no disponible"
   }
 
   function getTelefono(cotizacion: Cotizacion) {
