@@ -343,7 +343,7 @@ export function DocumentModal({
                 color: #2c3e50; 
                 margin: 0; 
                 padding: 0; 
-                font-size: 11pt; 
+                font-size: 11pt !important; 
                 background: white;
                 max-width: 100%;
                 overflow-wrap: break-word;
@@ -357,7 +357,7 @@ export function DocumentModal({
                 width: 100%; 
                 border-collapse: collapse; 
                 margin-bottom: 15px; 
-                font-size: 10pt;
+                font-size: 10pt !important;
                 table-layout: fixed;
               }
               td, th { 
@@ -386,11 +386,11 @@ export function DocumentModal({
                 padding-top: 10px;
                 margin-top: 20px;
                 text-align: center;
-                font-size: 9pt;
+                font-size: 9pt !important;
                 color: #7f8c8d;
               }
               @media print { 
-                body { font-size: 10pt; } 
+                body { font-size: 10pt !important; } 
                 .no-print { display: none; } 
                 .section-title { 
                   background: #00539B !important; 
@@ -416,7 +416,7 @@ export function DocumentModal({
   const PDF_CSS = `
 
   @page { size: A4 portrait; margin: 40pt; }
-  .pdf-optimized { font: 11pt/1.3 "Times New Roman", serif; color:#000; }
+  .pdf-optimized { font: 8pt/1.35 "Times New Roman" , serif; color:#000  !important; }
   .pdf-optimized h1,
   .pdf-optimized h2,
   .pdf-optimized h3 { font-family:"Segoe UI", sans-serif; margin:12pt 0; color:#00539B; }
@@ -432,7 +432,7 @@ export function DocumentModal({
   .pdf-optimized th { border:0.5pt solid #bdc3c7; padding:4pt 6pt; }
 
   /* overrides Tailwind */
-  .pdf-optimized .text-4xl { font-size:22pt !important; }
+  .pdf-optimized .text-4xl { font-size:11pt !important; }
 `;
   // Implementación mejorada para generar PDF con texto real, no imágenes
   function buildFileName(
@@ -480,13 +480,20 @@ const handleDownload = async () => {
     el.remove()
   );
 
+  clone.querySelectorAll<HTMLElement>("*").forEach(el => {
+  el.style.setProperty("font-size",   "10pt",  "important");
+  el.style.setProperty("line-height", "1.35", "important");
+});
+
   // Estilos embebidos → viajarán con el wrapper
   const style = document.createElement("style");
   style.textContent = PDF_CSS;           // <-- tu bloque css optimizado
 
   const wrapper = document.createElement("div");
   wrapper.className = "pdf-optimized";
-  wrapper.append(style, clone);
+  clone.style.fontSize    = "8pt";
+clone.style.lineHeight  = "1.35";
+  wrapper.append(clone, style);
 
   setIsGeneratingPDF(true);
   try {

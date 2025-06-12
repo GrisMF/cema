@@ -19,11 +19,19 @@ export const useGeneratePdf = () => {
     root.style.width    = `${pageWidth - margin * 2}px`;
     root.style.maxWidth = "none";
 
+    const topY   = 15;      // Y del logo
+const logoH  = 42.5;    // altura del logo  (1.5 cm → 42.5 pt)
+const padY   = 5;       // espacio entre logo y línea
+
+    const marginTop   = 15 + logoH + padY;  // 40 pt base + 42.5 + 5  ≈ 87.5 pt
+    const marginOther = 40;
+
     await pdf.html(root, {
-      margin: [margin, margin, margin, margin],
-      x: margin,
-      y: margin,
-      width: pageWidth - margin * 2,
+       margin: [marginTop, marginOther, marginOther, marginOther],
+       x: marginOther,
+        y: marginTop,                       // importante: igual al top
+        width: pageWidth - marginOther * 2,
+      
       html2canvas: { scale: 0.9 },
       autoPaging: "text",
 
@@ -44,22 +52,27 @@ export const useGeneratePdf = () => {
 /* helpers actualizados — usan la anchura real de la página en pt */
 const addHeader = (doc: jsPDF, pw: number, title: string) => {
   const marginX = 40;
-  // logo de 4 cm de ancho por 1.5 cm de alto
-  const logoW   = 113.4; // 4 cm en pt
-  const logoH   = 42.5;  // 1.5 cm en pt
+  const topY    = 15;       // parte superior del logo
+  const logoW   = 113.4;    // 4 cm  → 113.4 pt
+  const logoH   = 42.5;     // 1.5 cm → 42.5 pt
+  const padY    = 5;        // espacio entre logo y línea
 
-  doc.addImage(CEMA_LOGO, "PNG", marginX, 15, logoW, logoH);
+  // 1. Logo
+  doc.addImage(CEMA_LOGO, "PNG", marginX, topY, logoW, logoH);
 
-  doc
-    .setFont("Segoe UI", "normal")
-    .setFontSize(11)
-    .setTextColor(0, 83, 155)
-    .text(title, pw - marginX, 28, { align: "right" });
+  // 2. Título a la derecha (opcionalmente alinéalo con lineY - 12)
+  doc.setFont("Segoe UI", "normal")
+     .setFontSize(11)
+     .setTextColor(0, 83, 155)
+     .text(title, pw - marginX, topY + 13, { align: "right" });
 
+  // 3. Línea por debajo del logo
+  const lineY = topY + logoH + padY;       // 👉 62.5 pt
   doc.setDrawColor(0, 83, 155)
      .setLineWidth(2.25)
-     .line(marginX, 40, pw - marginX, 40);
+     .line(marginX, lineY, pw - marginX, lineY);
 };
+
 
 
 const addFooter = (doc: any, page: number, total: number, pw: number, ph: number) => {
