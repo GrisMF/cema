@@ -1,21 +1,35 @@
 // app/ProvidersWrapper.tsx
-"use client"
+"use client";
 
-import { ReactNode } from "react"
-import { ThemeProvider } from "next-themes"
-import { SessionContextProvider } from "@supabase/auth-helpers-react"
-import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs"
-import { AuthProvider } from "@/lib/auth-context"      // <--- tu AuthProvider
-import { Header } from "@/components/header"
-import { Toaster } from "@/components/ui/toaster"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
+import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "next-themes";
+import { Header } from "@/components/header";
+import { Toaster } from "@/components/ui/toaster";
 
-export default function ProvidersWrapper({ children }: { children: ReactNode }) {
-  // Inicializamos supabase en el cliente
-  const supabase = createPagesBrowserClient()
+export default function ProvidersWrapper({ children }: { children: React.ReactNode }) {
+  const supabase = createPagesBrowserClient();
+  const router   = useRouter();
+
+  /* 🔑 Sincroniza cookie ↔️ servidor */
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ event: _event, session }),
+      });
+      router.refresh();           // ← fuerza revalidación de layouts server
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase, router]);
 
   return (
     <SessionContextProvider supabaseClient={supabase}>
-      { /* Ahora metemos dentro al AuthProvider */ }
       <AuthProvider>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Header />
@@ -24,5 +38,5 @@ export default function ProvidersWrapper({ children }: { children: ReactNode }) 
         </ThemeProvider>
       </AuthProvider>
     </SessionContextProvider>
-  )
+  );
 }

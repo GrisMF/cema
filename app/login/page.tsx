@@ -1,187 +1,110 @@
-"use client"
+// app/login/page.tsx
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/lib/auth-context"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, Clock, CheckCircle, Loader2 } from "lucide-react"
-import Image from "next/image"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Link from "next/link"
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+import { Button }               from "@/components/ui/button";
+import { Input }                from "@/components/ui/input";
+import { Label }                from "@/components/ui/label";
+import { Card, CardContent }    from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+ Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+ } from "@/components/ui/tabs";
+import {
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-  const [error, setError] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
-  const [isLoggingIn, setIsLoggingIn] = useState(false)
-  const [isRegistering, setIsRegistering] = useState(false)
-  const [cooldownTime, setCooldownTime] = useState(0)
-  const [activeTab, setActiveTab] = useState("login")
-  const [registrationSuccess, setRegistrationSuccess] = useState(false)
-  const { login, register } = useAuth()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const [email, setEmail]     = useState("");
+  const [password, setPass]   = useState("");
+  const [name, setName]       = useState("");
+  const [error, setError]     = useState("");
+  const [success, setSucc]    = useState("");
+  const [cooldown, setCd]     = useState(0);
+  const [tab, setTab]         = useState<"login" | "register">("login");
+  const [busyLogin, setBL]    = useState(false);
+  const [busyReg, setBR]      = useState(false);
 
-  // Verificar si hay mensajes de éxito en los parámetros de la URL
+  const searchParams = useSearchParams();
+  const { login, register } = useAuth();
+
+  /* mensajes via query string */
   useEffect(() => {
-    const accountDeleted = searchParams.get("accountDeleted")
-    const registered = searchParams.get("registered")
+    const del = searchParams.get("accountDeleted") === "true";
+    const reg = searchParams.get("registered")     === "true";
+    if (del) setSucc("Tu cuenta ha sido eliminada correctamente.");
+    if (reg) setSucc("Te has registrado correctamente. Ahora puedes iniciar sesión.");
+  }, [searchParams]);
 
-    if (accountDeleted === "true") {
-      setSuccessMessage("Tu cuenta ha sido eliminada correctamente.")
-    } else if (registered === "true") {
-      setSuccessMessage("Te has registrado correctamente. Ahora puedes iniciar sesión.")
-    }
-  }, [searchParams])
-
-  // Temporizador para el cooldown
+  /* cooldown visual */
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null
+    if (cooldown === 0) return;
+    const t = setInterval(() => setCd((s) => (s <= 1 ? 0 : s - 1)), 1000);
+    return () => clearInterval(t);
+  }, [cooldown]);
 
-    if (cooldownTime > 0) {
-      timer = setInterval(() => {
-        setCooldownTime((prev) => {
-          if (prev <= 1) {
-            if (timer) clearInterval(timer)
-            return 0
-          }
-          return prev - 1
-        })
-      }, 1000)
-    }
+  /* util */
+  const extractWait = (msg: string) => {
+    const m =
+      msg.match(/after\s+(\d+)\s+seconds/i) ||
+      msg.match(/despu[eé]s\s+de\s+(\d+)\s+segundos?/i);
+    return m?.[1] ? Number(m[1]) : 30;
+  };
 
-    return () => {
-      if (timer) clearInterval(timer)
-    }
-  }, [cooldownTime])
-
+  /* handlers */
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setSuccessMessage("")
-    setIsLoggingIn(true)
-
-    try {
-      console.log("Iniciando proceso de login para:", email)
-      const result = await login(email, password)
-
-      if (result.success) {
-        console.log("Login exitoso, redirigiendo...")
-        router.push("/cotizador")
-      } else {
-        console.log("Login fallido:", result.message)
-        setError(result.message || "Credenciales incorrectas. Por favor, inténtalo de nuevo.")
-      }
-    } catch (err: any) {
-      console.error("Error inesperado en login:", err)
-      setError(`Error al iniciar sesión: ${err?.message || "Ocurrió un error desconocido"}`)
-    } finally {
-      setIsLoggingIn(false)
-    }
-  }
-
-  const extractWaitTime = (errorMessage: string): number => {
-    // Buscar patrones como "after X seconds" o "después de X segundos"
-    const matches =
-      errorMessage.match(/after\s+(\d+)\s+seconds/i) ||
-      errorMessage.match(/después\s+de\s+(\d+)\s+segundos/i) ||
-      errorMessage.match(/(\d+)\s+seconds/i) ||
-      errorMessage.match(/(\d+)\s+segundos/i)
-
-    if (matches && matches[1]) {
-      const seconds = Number.parseInt(matches[1], 10)
-      return isNaN(seconds) ? 30 : seconds
-    }
-
-    return 30 // Valor predeterminado si no podemos extraer el tiempo
-  }
+    e.preventDefault();
+    setError("");
+    setBL(true);
+    const { success, message } = await login(email, password);
+    if (!success) setError(message || "Credenciales incorrectas.");
+    setBL(false);
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setSuccessMessage("")
+    e.preventDefault();
+    setError("");
+    setSucc("");
 
-    // No permitir registro durante el cooldown
-    if (cooldownTime > 0) {
-      setError(`Por favor, espera ${cooldownTime} segundos antes de intentar registrarte de nuevo.`)
-      return
+    if (cooldown > 0) {
+      setError(`Por favor, espera ${cooldown} s antes de intentarlo nuevamente.`);
+      return;
     }
-
-    setIsRegistering(true)
-
     if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres.")
-      setIsRegistering(false)
-      return
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
     }
 
-    try {
-      console.log("Iniciando proceso de registro para:", email)
-      const result = await register(email, password, name)
-
-      if (result.success) {
-        if (result.message) {
-          // Si hay un mensaje pero fue exitoso, probablemente necesita verificación
-          setRegistrationSuccess(true)
-          setSuccessMessage(result.message)
-          setActiveTab("login") // Cambiar a la pestaña de login
-        } else {
-          // Registro e inicio de sesión automático exitosos
-          console.log("Registro exitoso, redirigiendo...")
-          router.push("/cotizador")
-        }
-      } else {
-        console.log("Registro fallido:", result.message)
-        setError(result.message || "No se pudo completar el registro. Por favor, inténtalo de nuevo.")
-      }
-    } catch (err: any) {
-      console.error("Error inesperado en registro:", err)
-
-      // Convertir el error a string para facilitar la búsqueda de patrones
-      const errorMessage = err?.message || err?.toString() || "Error desconocido"
-
-      // Verificar si es un error de cooldown
-      if (
-        errorMessage.includes("security purposes") ||
-        errorMessage.includes("seconds") ||
-        errorMessage.toLowerCase().includes("seguridad") ||
-        errorMessage.toLowerCase().includes("segundos")
-      ) {
-        // Extraer el tiempo de espera
-        const waitTime = extractWaitTime(errorMessage)
-
-        // Establecer el cooldown
-        setCooldownTime(waitTime)
-        setError(`Por razones de seguridad, debes esperar ${waitTime} segundos antes de intentar registrarte de nuevo.`)
-      } else {
-        setError(`Error al registrarse: ${errorMessage}`)
-      }
-    } finally {
-      setIsRegistering(false)
+    setBR(true);
+    const { success, message } = await register(email, password, name);
+    if (!success) {
+      const wait = extractWait(message || "");
+      setCd(wait);
+      setError(message || "No se pudo registrar.");
     }
-  }
+    setBR(false);
+  };
 
-  const handleTabChange = (value: string) => {
-    setActiveTab(value)
-    setError("") // Limpiar errores al cambiar de pestaña
-    setSuccessMessage("") // Limpiar mensajes de éxito al cambiar de pestaña
-    setRegistrationSuccess(false) // Resetear el estado de registro exitoso
-  }
-
+  /* UI */
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-16 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-16 pb-12 px-4">
       <div className="max-w-md w-full space-y-8">
+
+        {/* logo y título */}
         <div className="text-center">
           <Image
             src="/images/cema-logo.png"
-            alt="CEMA - Organismo de Certificación"
+            alt="CEMA"
             width={200}
             height={80}
             className="mx-auto"
@@ -190,73 +113,41 @@ export default function LoginPage() {
           <p className="mt-2 text-sm text-gray-600">Accede a tu cuenta para utilizar el cotizador</p>
         </div>
 
-        {successMessage && (
+        {success && (
           <Alert className="mb-6 bg-green-50 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">{successMessage}</AlertDescription>
+            <AlertDescription className="text-green-800">{success}</AlertDescription>
           </Alert>
         )}
 
-        {registrationSuccess && (
-          <Alert className="mb-6 bg-green-50 border-green-200">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              ¡Registro exitoso! Ahora puedes iniciar sesión con tus credenciales.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
+          <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
             <TabsTrigger value="register">Registrarse</TabsTrigger>
           </TabsList>
 
+          {/* login */}
           <TabsContent value="login">
             <Card>
               <CardContent className="pt-6">
-                {error && (
+                {error && tab === "login" && (
                   <Alert variant="destructive" className="mb-6">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="email">Correo electrónico</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="correo@ejemplo.com"
-                    />
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="password">Contraseña</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
+                    <Input id="password" type="password" value={password} onChange={(e) => setPass(e.target.value)} required />
                   </div>
-
-                  <Button type="submit" className="w-full" disabled={isLoggingIn}>
-                    {isLoggingIn ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Iniciando sesión...
-                      </>
-                    ) : (
-                      "Iniciar sesión"
-                    )}
+                  <Button type="submit" className="w-full" disabled={busyLogin}>
+                    {busyLogin ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Iniciando…</> : "Iniciar sesión"}
                   </Button>
-
                   <div className="mt-4 text-center">
                     <Link href="/recuperar-password" className="text-sm text-blue-600 hover:text-blue-800">
                       ¿Olvidaste tu contraseña?
@@ -267,76 +158,34 @@ export default function LoginPage() {
             </Card>
           </TabsContent>
 
+          {/* register */}
           <TabsContent value="register">
             <Card>
               <CardContent className="pt-6">
-                {error && cooldownTime > 0 ? (
-                  <Alert className="mb-6 bg-yellow-50 border-yellow-200">
-                    <Clock className="h-4 w-4 text-yellow-600" />
-                    <AlertDescription className="text-yellow-800">{error}</AlertDescription>
-                  </Alert>
-                ) : error ? (
-                  <Alert variant="destructive" className="mb-6">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                ) : null}
-
-                {cooldownTime > 0 && !error && (
-                  <Alert className="mb-6 bg-yellow-50 border-yellow-200">
-                    <Clock className="h-4 w-4 text-yellow-600" />
-                    <AlertDescription className="text-yellow-800">
-                      Por favor espera {cooldownTime} segundos antes de intentar registrarte de nuevo.
-                    </AlertDescription>
+                {error && tab === "register" && (
+                  <Alert className={`mb-6 ${cooldown > 0 ? "bg-yellow-50 border-yellow-200" : "bg-red-50 border-red-200"}`}>
+                    {cooldown > 0 ? <Clock className="h-4 w-4 text-yellow-600" /> : <AlertCircle className="h-4 w-4 text-red-600" />}
+                    <AlertDescription className={`${cooldown > 0 ? "text-yellow-800" : "text-red-800"}`}>{error}</AlertDescription>
                   </Alert>
                 )}
-
                 <form onSubmit={handleRegister} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="register-name">Nombre</Label>
-                    <Input
-                      id="register-name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      placeholder="Tu nombre"
-                    />
+                    <Label htmlFor="name">Nombre</Label>
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="register-email">Correo electrónico</Label>
-                    <Input
-                      id="register-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="correo@ejemplo.com"
-                    />
+                    <Input id="register-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="register-password">Contraseña</Label>
-                    <Input
-                      id="register-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                    />
-                    <p className="text-xs text-gray-500">La contraseña debe tener al menos 6 caracteres</p>
+                    <Input id="register-password" type="password" value={password} onChange={(e) => setPass(e.target.value)} required minLength={6} />
                   </div>
-
-                  <Button type="submit" className="w-full" disabled={isRegistering || cooldownTime > 0}>
-                    {isRegistering ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Registrando...
-                      </>
-                    ) : cooldownTime > 0 ? (
-                      `Espera ${cooldownTime}s`
+                  <Button type="submit" className="w-full" disabled={busyReg || cooldown > 0}>
+                    {busyReg ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registrando…</>
+                    ) : cooldown > 0 ? (
+                      `Espera ${cooldown}s`
                     ) : (
                       "Registrarse"
                     )}
@@ -348,5 +197,5 @@ export default function LoginPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

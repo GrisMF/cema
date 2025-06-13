@@ -1,14 +1,28 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+// app/page.tsx  – Página principal completa
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useMemo } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
+  /* ¿El usuario ya inició sesión? */
+  const { isAuthenticated } = useAuth();
+
+  /* Destino dinámico para ambos CTA */
+  const cotizadorHref = useMemo(
+    () => (isAuthenticated ? "/cotizador" : "/login"),
+    [isAuthenticated]
+  );
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Hero Section */}
+      {/* ───────────────────────── Hero ───────────────────────── */}
       <div className="relative h-screen flex items-center">
-        {/* Background Image */}
+        {/* Imagen de fondo */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/fresh-strawberries.png"
@@ -18,7 +32,7 @@ export default function Home() {
             priority
             quality={100}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-green-900/90"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-green-900/90" />
         </div>
 
         {/* Logo */}
@@ -32,7 +46,7 @@ export default function Home() {
           />
         </div>
 
-        {/* Content */}
+        {/* Texto principal */}
         <div className="container mx-auto px-4 z-10">
           <div className="max-w-3xl mt-32">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
@@ -45,7 +59,9 @@ export default function Home() {
               Garantizamos la calidad e inocuidad de sus productos agrícolas con nuestros servicios de certificación
               reconocidos internacionalmente.
             </p>
-            <Link href="/cotizador">
+
+            {/* Botón dinámico */}
+            <Link href={cotizadorHref}>
               <Button
                 size="lg"
                 className="bg-green-600 hover:bg-green-700 text-white text-lg px-8 py-6 rounded-lg transition-all transform hover:scale-105 shadow-lg"
@@ -57,13 +73,15 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Features Section */}
+      {/* ───────────────────────── Beneficios ───────────────────────── */}
       <div className="bg-white py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
             Beneficios de la Certificación PRIMUS GFS
           </h2>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Beneficio 1 */}
             <div className="bg-green-50 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-4 text-white text-2xl font-bold">
                 1
@@ -74,6 +92,8 @@ export default function Home() {
                 Seguridad Alimentaria (GFSI).
               </p>
             </div>
+
+            {/* Beneficio 2 */}
             <div className="bg-green-50 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-4 text-white text-2xl font-bold">
                 2
@@ -84,6 +104,8 @@ export default function Home() {
                 de alimentos.
               </p>
             </div>
+
+            {/* Beneficio 3 */}
             <div className="bg-green-50 p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow">
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-4 text-white text-2xl font-bold">
                 3
@@ -98,14 +120,18 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CTA Section */}
+      {/* ───────────────────────── Llamado a la acción ───────────────────────── */}
       <div className="bg-blue-700 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">¿Listo para comenzar su proceso de certificación?</h2>
+          <h2 className="text-3xl font-bold text-white mb-6">
+            ¿Listo para comenzar su proceso de certificación?
+          </h2>
           <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
             Utilice nuestro cotizador en línea para obtener una estimación de costos personalizada para su operación.
           </p>
-          <Link href="/cotizador">
+
+          {/* Botón dinámico */}
+          <Link href={cotizadorHref}>
             <Button
               size="lg"
               className="bg-white text-blue-700 hover:bg-blue-50 text-lg px-8 py-6 rounded-lg transition-all transform hover:scale-105 shadow-lg"
@@ -116,7 +142,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* ───────────────────────── Footer ───────────────────────── */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
@@ -137,5 +163,5 @@ export default function Home() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

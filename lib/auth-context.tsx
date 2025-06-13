@@ -15,6 +15,7 @@ import {
 } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/navigation";
 
+/* ───────── tipos ───────── */
 interface AppUser {
   id: string;
   email: string;
@@ -22,156 +23,115 @@ interface AppUser {
   role: "admin" | "user";
   isSuperuser: boolean;
 }
-
 interface AuthContextType {
   user: AppUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  isAdmin: boolean;           // ← lo recuperamos
-  isSuperuser: boolean;       // ← y éste también
-  login: (
-    email: string,
-    password: string
-  ) => Promise<{ success: boolean; message?: string }>;
-  register: (
-    email: string,
-    password: string,
-    name: string
-  ) => Promise<{ success: boolean; message?: string }>;
-  logout: () => Promise<void>;
+  isAdmin: boolean;
+  isSuperuser: boolean;
+  login(email: string, pass: string): Promise<{ success: boolean; message?: string }>;
+  register(email: string, pass: string, name: string): Promise<{ success: boolean; message?: string }>;
+  logout(): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/* ───────── helper que escribe cookie y espera ───────── */
+async function syncCookie(event: "SIGNED_IN" | "SIGNED_OUT", session: any) {
+  await fetch("/api/auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ event, session }),
+  });
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const session = useSession();
-  const rawUser = useUser();
   const supabase = useSupabaseClient();
-  const router = useRouter();
+  const session  = useSession();
+  const rawUser  = useUser();
+  const router   = useRouter();
 
-  const [user, setUser] = useState<AppUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser]         = useState<AppUser | null>(null);
+  const [isLoading, setLoading] = useState(true);
 
-  // 1️⃣ Traer perfil desde la tabla "users" cada vez que rawUser cambie
+  /* ───────── lee perfil cuando haya rawUser ───────── */
   useEffect(() => {
-    if (!rawUser) {
-      setUser(null);
-      setIsLoading(false);
-      return;
-    }
+    if (!rawUser) { setUser(null); setLoading(false); return; }
+    (async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("users")
+        .select("name, role, is_superuser")
+        .eq("id", rawUser.id)
+        .maybeSingle();
 
-    const loadProfile = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from("users")
-          .select("name, role, is_superuser")
-          .eq("id", rawUser.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error("Error al leer perfil:", error);
-          setUser(null);
-        } else if (data) {
-          setUser({
-            id: rawUser.id,
-            email: rawUser.email || "",
-            name: data.name,
-            role: data.role as "admin" | "user",
-            isSuperuser: data.is_superuser,
-          });
-        } else {
-          // si no hay fila en la tabla, lo inicializamos con lo mínimo
-          setUser({
-            id: rawUser.id,
-            email: rawUser.email || "",
-            name: rawUser.user_metadata.name || "",
-            role: "user",
-            isSuperuser: false,
-          });
-        }
-      } catch (err) {
-        console.error("Excepción al cargar perfil:", err);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfile();
+      setUser({
+        id: rawUser.id,
+        email: rawUser.email ?? "",
+        name: data?.name ?? (rawUser.user_metadata as any)?.name ?? "",
+        role: (data?.role as "admin" | "user") ?? "user",
+        isSuperuser: data?.is_superuser ?? false,
+      });
+      setLoading(false);
+    })();
   }, [rawUser, supabase]);
 
-  // 2️⃣ Métodos de login / register / logout
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+  /* ───────── LOGIN ───────── */
+  const login: AuthContextType["login"] = async (email, pass) => {
+    setLoading(true);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    if (error) { setLoading(false); return { success: false, message: error.message }; }
+
+    /* ✨ 1. Escribe cookie y espera */
+    await syncCookie("SIGNED_IN", data.session);
+
+    /* 2. Navega */
+    await router.replace("/cotizador");
+    setLoading(false);
+    return { success: true };
+  };
+
+  /* ───────── REGISTER ───────── */
+  const register: AuthContextType["register"] = async (email, pass, name) => {
+    setLoading(true);
+    const { data: signUp, error } = await supabase.auth.signUp({
+      email, password: pass, options: { data: { name } },
     });
-    setIsLoading(false);
-    if (error) return { success: false, message: error.message };
-    router.refresh();
+    if (error) { setLoading(false); return { success: false, message: error.message }; }
+
+    if (signUp.user) {
+      await supabase.from("users").insert({
+        id: signUp.user.id, email, name, role: "user", is_superuser: false,
+      });
+    }
+    await syncCookie("SIGNED_IN", signUp.session);
+    await router.replace("/cotizador");
+    setLoading(false);
     return { success: true };
   };
 
-  const register = async (email: string, password: string, name: string) => {
-    setIsLoading(true);
-
-    // crear auth
-    const { data: signUpData, error: signUpError } =
-      await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { name } },
-      });
-    if (signUpError) {
-      setIsLoading(false);
-      return { success: false, message: signUpError.message };
-    }
-
-    // crear fila en tabla users
-    if (signUpData.user) {
-      const { error: dbError } = await supabase.from("users").insert({
-        id: signUpData.user.id,
-        email,
-        name,
-        role: "user",
-        is_superuser: false,
-      });
-      if (dbError) {
-        setIsLoading(false);
-        return { success: false, message: dbError.message };
-      }
-    }
-
-    setIsLoading(false);
-    router.refresh();
-    return { success: true };
-  };
-
+  /* ───────── LOGOUT ───────── */
   const logout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
+    setLoading(true);
+    const { error } = await supabase.auth.signOut({ scope: "global" });
+    if (error) console.error(error);
+
+    await syncCookie("SIGNED_OUT", null);
+    await router.replace("/");
+    setLoading(false);
   };
 
-  // 3️⃣ Valores derivados
+  /* ───────── flags ───────── */
   const isAuthenticated = !!session && !!user;
-  const isAdmin = user?.role === "admin";
+  const isAdmin     = user?.role === "admin";
   const isSuperuser = user?.isSuperuser ?? false;
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isLoading,
-        isAuthenticated,
-        isAdmin,
-        isSuperuser,
-        login,
-        register,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{
+      user, isLoading, isAuthenticated, isAdmin, isSuperuser,
+      login, register, logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );
