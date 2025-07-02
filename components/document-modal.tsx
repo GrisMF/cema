@@ -667,14 +667,7 @@ clone.style.lineHeight  = "1.35";
               Limpiar Campos
             </Button>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handlePrint}
-                className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300"
-              >
-                <Printer className="h-4 w-4" />
-                Imprimir
-              </Button>
+              
               <Button
                 onClick={handleDownload}
                 className="flex items-center gap-2 bg-gradient-to-r from-[#00539B] to-[#0066CC] hover:from-[#003b6f] hover:to-[#004d99] text-white shadow-lg"

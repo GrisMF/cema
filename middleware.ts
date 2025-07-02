@@ -32,5 +32,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/cotizador/:path*", "/admin/:path*"],
+  matcher: ["/cotizador/:path*", "/admin/:path*", "/perfil(.*)",],
 };
