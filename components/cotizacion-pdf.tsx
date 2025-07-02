@@ -344,13 +344,7 @@ export function CotizacionPDF({
           </Button>
         )}
         <div className="flex gap-1 md:gap-2 ml-auto">
-          <Button
-            variant="outline"
-            onClick={imprimir}
-            className="flex items-center gap-1 md:gap-2 text-sm md:text-base"
-          >
-            <Printer className="h-3 w-3 md:h-4 md:w-4" /> Imprimir
-          </Button>
+          
           <Button
             onClick={generarPDF}
             disabled={isGenerating}

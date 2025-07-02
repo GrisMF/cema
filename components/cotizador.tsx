@@ -642,16 +642,7 @@ export function Cotizador() {
             >
               <FileText className="mr-2 h-4 w-4" /> Ver PDF
             </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => {
-                setShowConfirmationModal(false)
-                imprimirCotizacion()
-              }}
-            >
-              <Printer className="mr-2 h-4 w-4" /> Imprimir
-            </Button>
+            
           </div>
         </div>
       </div>
@@ -1600,13 +1591,7 @@ export function Cotizador() {
             </CardContent>
 
             <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 p-6 md:p-8 bg-gradient-to-r from-gray-50 to-gray-100">
-              <Button
-                variant="outline"
-                onClick={imprimirCotizacion}
-                className="w-full sm:w-auto bg-white hover:bg-gray-50 transition-colors neo-brutalism"
-              >
-                <Printer className="mr-2 h-4 w-4" /> Imprimir
-              </Button>
+              
               {renderBotonPrincipal()}
               {saveSuccess && (
                 <div className="mt-2 text-sm text-green-600 bg-green-50 p-2 rounded-md">
