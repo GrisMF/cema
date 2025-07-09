@@ -6,6 +6,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { DocumentModal } from "@/components/document-modal"
+import { useAuth } from "@/lib/auth-context";
+
+// Definición de la interfaz Cotizacion
 
 interface Cotizacion {
   id: number
@@ -27,6 +30,9 @@ export default function HistorialCotizaciones() {
   const [isLoading, setIsLoading] = useState(true)
   const [showDocumentModal, setShowDocumentModal] = useState(false)
   const [selectedCotizacion, setSelectedCotizacion] = useState<Cotizacion | null>(null)
+  const { user } = useAuth()
+  const isAdmin = user?.role === "admin"
+
 
   useEffect(() => {
     async function cargarCotizaciones() {
@@ -146,19 +152,32 @@ export default function HistorialCotizaciones() {
                       ? "Aceptada"
                       : "Rechazada"}
                 </span>
-                <Button variant="default" size="sm" onClick={() => handleOrdenarClick(cotizacion)}>
-                  ORDENAR
-                </Button>
+
+                 {isAdmin && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => handleOrdenarClick(cotizacion)}
+                    className="ml-2"
+                  >
+                    ORDENAR
+                  </Button>
+                )}
+
+                
                 <Link href={`/cotizador/pdf?id=${cotizacion.id}`}>
+                
+            
                   <Button variant="outline" size="sm">
                     Ver PDF
                   </Button>
                 </Link>
-              </div>
-            </div>
-            <Separator className="my-2" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div>
+              
+          </div>
+        </div>
+        <Separator className="my-2" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
                 <p className="text-sm">
                   <span className="font-medium">Esquemas:</span>{" "}
                   {cotizacion.esquemas ? cotizacion.esquemas.join(", ") : "N/A"}
